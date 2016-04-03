@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Fitness app</string>
+    <string name="action_favorite">Test</string>
+    <string name="action_settings">Settings</string>
+    <string name="drawer_open">Open</string>
+    <string name="drawer_close">Close</string>
+    <string name="previous_exercise_button">&lt;</string>
+    <string name="next_exercise_button">&gt;</string>
+    <string name="warmup_weight">Warmup</string>
+    <string name="working_set">Working set</string>
+</resources>
