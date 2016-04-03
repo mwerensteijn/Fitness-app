@@ -56,9 +56,6 @@ public class MainActivity extends AppCompatActivity {
     private android.support.design.widget.TabLayout mTabs;
     private FragmentPagerAdapter adapterViewPager;
 
-    private ArrayList<RelativeLayout> warmupButtons = new ArrayList<RelativeLayout>();
-    private LineChart mChart;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -135,7 +132,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
     public float dpToPixels(float dp) {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
     }
@@ -189,50 +185,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    public void initializeWarmupViews(int warmups) {
-        LayoutParams lp = new LayoutParams((int) dpToPixels(40), (int) dpToPixels(40));
-
-
-        LinearLayout ll = (LinearLayout) findViewById(R.id.gridlayout_warmup);
-
-        /*int spaceWidth = ll.getWidth();
-        int buttonsPerRow = (int) (spaceWidth / dpToPixels(40));
-*/
-
-        for(int i = 0; i < warmups; i++) {
-            Button b = new Button(this);
-            b.setText("");
-            b.setLayoutParams(lp);
-            b.setTextColor(Color.WHITE);
-            b.setBackgroundResource(R.drawable.inactive_button);
-            b.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    countRep(v);
-                }
-            });
-
-            TextView t = new TextView(this);
-            t.setText("3x60");
-            RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) t.getLayoutParams();
-            //rlp.addRule(RelativeLayout.ABOVE, b.getId());
-
-            RelativeLayout rl = new RelativeLayout(this);
-            rl.addView(t);
-            rl.addView(b);
-
-            warmupButtons.add(rl);
-            ll.addView(warmupButtons.get(i));
-
-            /*Space s = new Space(this);
-            lp = new LinearLayout.LayoutParams(0, (int) dpToPixels(40), 1f);
-            s.setLayoutParams(lp);
-
-            ll.addView(s);*/
-        }
-
-        ll.invalidate();
-    }
 
     public void countRep(View v) {
         Button b = (Button) v;
@@ -249,71 +201,6 @@ public class MainActivity extends AppCompatActivity {
                 b.setBackgroundResource(R.drawable.inactive_button);
             }
         }
-    }
-
-    private void configureGraph() {
-        // in this example, a LineChart is initialized from xml
-        mChart = (LineChart) findViewById(R.id.exercise_chart);
-        mChart.setNoDataTextDescription("There is no history yet.");
-        mChart.setDescription("");
-        mChart.setScaleEnabled(false);
-        mChart.setPinchZoom(false);
-        mChart.setDoubleTapToZoomEnabled(false);
-        mChart.setDragEnabled(false);
-
-        YAxis leftAxis = mChart.getAxisLeft();
-        leftAxis.setDrawAxisLine(false);
-        leftAxis.setDrawLabels(false);
-        leftAxis.setDrawGridLines(false);
-
-        YAxis rightAxis = mChart.getAxisRight();
-        rightAxis.setDrawAxisLine(false);
-        rightAxis.setDrawLabels(false);
-        rightAxis.setDrawGridLines(false);
-
-        XAxis xAxis = mChart.getXAxis();
-        xAxis.setDrawAxisLine(false);
-        xAxis.setDrawLabels(false);
-        xAxis.setDrawGridLines(false);
-
-        Legend legend = mChart.getLegend();
-        legend.setEnabled(false);
-
-        setGraphData();
-
-        mChart.invalidate();
-        mChart.animateY(600, Easing.EasingOption.EaseInBounce);
-    }
-
-    private void setGraphData() {
-        ArrayList<String> xVals = new ArrayList<String>();
-        xVals.add("18/03/16");
-        xVals.add("20/03/16");
-        xVals.add("22/03/16");
-        xVals.add("25/03/16");
-        xVals.add("28/03/16");
-
-        ArrayList<Entry> yVals = new ArrayList<Entry>();
-        yVals.add(new Entry(72.5f, 0));
-        yVals.add(new Entry(75f, 1));
-        yVals.add(new Entry(75f, 2));
-        yVals.add(new Entry(77.5f, 3));
-        yVals.add(new Entry(80f, 4));
-
-        // create a dataset and give it a type
-        LineDataSet set1 = new LineDataSet(yVals, "DataSet 1");
-
-        set1.setLineWidth(1.5f);
-        set1.setCircleRadius(4f);
-        set1.setHighlightEnabled(false);
-        set1.setColor(Color.parseColor("#90CAF9"));
-        set1.setValueTextSize(10f);
-
-        // create a data object with the datasets
-        LineData data = new LineData(xVals, set1);
-
-        // set data
-        mChart.setData(data);
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -358,6 +245,8 @@ public class MainActivity extends AppCompatActivity {
     public static class ExerciseFragment extends Fragment {
         private String title;
         private int page;
+        private LineChart mChart;
+        private View view;
 
         public static ExerciseFragment newInstance(int page, String title) {
             ExerciseFragment fragmentFirst = new ExerciseFragment();
@@ -379,11 +268,79 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.exercise_fragment, container, false);
-            TextView tvLabel = (TextView) view.findViewById(R.id.tvLabel);
-            tvLabel.setText(page + " -- " + title);
+            view = inflater.inflate(R.layout.exercise_fragment, container, false);
+            //TextView tvLabel = (TextView) view.findViewById(R.id.tvLabel);
+            //tvLabel.setText(page + " -- " + title);
+
+            configureGraph();
+            setGraphData();
 
             return view;
+        }
+
+        private void configureGraph() {
+            // in this example, a LineChart is initialized from xml
+            mChart = (LineChart) view.findViewById(R.id.exercise_chart);
+            mChart.setNoDataTextDescription("There is no history yet.");
+            mChart.setDescription("");
+            mChart.setScaleEnabled(false);
+            mChart.setPinchZoom(false);
+            mChart.setDoubleTapToZoomEnabled(false);
+            mChart.setDragEnabled(false);
+
+            YAxis leftAxis = mChart.getAxisLeft();
+            leftAxis.setDrawAxisLine(false);
+            leftAxis.setDrawLabels(false);
+            leftAxis.setDrawGridLines(false);
+
+            YAxis rightAxis = mChart.getAxisRight();
+            rightAxis.setDrawAxisLine(false);
+            rightAxis.setDrawLabels(false);
+            rightAxis.setDrawGridLines(false);
+
+            XAxis xAxis = mChart.getXAxis();
+            xAxis.setDrawAxisLine(false);
+            xAxis.setDrawLabels(false);
+            xAxis.setDrawGridLines(false);
+
+            Legend legend = mChart.getLegend();
+            legend.setEnabled(false);
+
+            setGraphData();
+
+            mChart.invalidate();
+            //mChart.animateY(600, Easing.EasingOption.EaseInBounce);
+        }
+
+        private void setGraphData() {
+            ArrayList<String> xVals = new ArrayList<String>();
+            xVals.add("18/03/16");
+            xVals.add("20/03/16");
+            xVals.add("22/03/16");
+            xVals.add("25/03/16");
+            xVals.add("28/03/16");
+
+            ArrayList<Entry> yVals = new ArrayList<Entry>();
+            yVals.add(new Entry(72.5f, 0));
+            yVals.add(new Entry(75f, 1));
+            yVals.add(new Entry(75f, 2));
+            yVals.add(new Entry(77.5f, 3));
+            yVals.add(new Entry(80f, 4));
+
+            // create a dataset and give it a type
+            LineDataSet set1 = new LineDataSet(yVals, "DataSet 1");
+
+            set1.setLineWidth(1.5f);
+            set1.setCircleRadius(4f);
+            set1.setHighlightEnabled(false);
+            set1.setColor(Color.parseColor("#90CAF9"));
+            set1.setValueTextSize(10f);
+
+            // create a data object with the datasets
+            LineData data = new LineData(xVals, set1);
+
+            // set data
+            mChart.setData(data);
         }
     }
 }
