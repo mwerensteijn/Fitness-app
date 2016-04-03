@@ -8,4 +8,7 @@
     <string name="next_exercise_button">&gt;</string>
     <string name="warmup_weight">Warmup</string>
     <string name="working_set">Working set</string>
+    <string name="open">open</string>
+    <string name="close">close</string>
+    <string name="search_title">Search</string>
 </resources>
