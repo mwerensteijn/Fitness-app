@@ -7,6 +7,9 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -18,6 +21,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -50,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private ActionBarDrawerToggle mActionBarDrawerToggle;
     private Toolbar toolbar;
     private android.support.design.widget.TabLayout mTabs;
-    private ViewPager mViewPager;
+    private FragmentPagerAdapter adapterViewPager;
 
     private ArrayList<RelativeLayout> warmupButtons = new ArrayList<RelativeLayout>();
     private LineChart mChart;
@@ -101,13 +105,34 @@ public class MainActivity extends AppCompatActivity {
 
     private void initViewPager(){
         mTabs = (android.support.design.widget.TabLayout) findViewById(R.id.tabs);
-        mTabs.addTab(mTabs.newTab().setText("Tab 1"));
-        mTabs.addTab(mTabs.newTab().setText("Tab 2"));
-        mTabs.addTab(mTabs.newTab().setText("Tab 3"));
+        mTabs.addTab(mTabs.newTab().setText("Squat"));
+        mTabs.addTab(mTabs.newTab().setText("Bench Press"));
+        mTabs.addTab(mTabs.newTab().setText("Barbell Row"));
+        mTabs.addTab(mTabs.newTab().setText("Pull up"));
+        mTabs.addTab(mTabs.newTab().setText("Chin up"));
+        mTabs.addTab(mTabs.newTab().setText("Bicep curl"));
+        mTabs.setTabMode(TabLayout.MODE_SCROLLABLE);
 
-        mViewPager = (ViewPager) findViewById(R.id.viewpager);
-        mViewPager.setAdapter(new SamplePagerAdapter());
-        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabs));
+        final ViewPager vpPager = (ViewPager) findViewById(R.id.viewpager);
+        adapterViewPager = new MyPagerAdapter(getSupportFragmentManager());
+        vpPager.setAdapter(adapterViewPager);
+        vpPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabs));
+        mTabs.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                vpPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
     }
 
 
@@ -122,38 +147,44 @@ public class MainActivity extends AppCompatActivity {
         return dp;
     }
 
-    private class SamplePagerAdapter extends PagerAdapter {
+    private class MyPagerAdapter extends FragmentPagerAdapter {
+        private int NUM_ITEMS = 6;
+
+        public MyPagerAdapter(FragmentManager fragmentManager) {
+            super(fragmentManager);
+        }
 
         @Override
         public int getCount() {
-            return 3;
+            return NUM_ITEMS;
         }
 
+        // Returns the fragment to display for that page
         @Override
-        public boolean isViewFromObject(View view, Object o) {
-            return o == view;
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0: // Fragment # 0 - This will show FirstFragment
+                    return ExerciseFragment.newInstance(0, "Squat");
+                case 1: // Fragment # 0 - This will show FirstFragment different title
+                    return ExerciseFragment.newInstance(1, "Bench press");
+                case 2: // Fragment # 1 - This will show SecondFragment
+                    return ExerciseFragment.newInstance(2, "Barbell row");
+                case 3: // Fragment # 1 - This will show SecondFragment
+                    return ExerciseFragment.newInstance(3, "Pull up");
+                case 4: // Fragment # 1 - This will show SecondFragment
+                    return ExerciseFragment.newInstance(4, "Chin up");
+                case 5: // Fragment # 1 - This will show SecondFragment
+                    return ExerciseFragment.newInstance(5, "Bicep curl");
+                default:
+                    return null;
+            }
         }
 
+        // Returns the page title for the top indicator
         @Override
         public CharSequence getPageTitle(int position) {
-            return "Item " + (position + 1);
+            return "Page " + position;
         }
-
-
-        @Override
-        public Object instantiateItem(ViewGroup container, int position) {
-            View view = getLayoutInflater().inflate(R.layout.pager_item,
-                    container, false);
-            container.addView(view);
-            TextView title = (TextView) view.findViewById(R.id.item_title);
-            title.setText(String.valueOf(position + 1));
-            return view;
-        }
-        @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
-            container.removeView((View) object);
-        }
-
     }
 
 
@@ -321,6 +352,38 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public static class ExerciseFragment extends Fragment {
+        private String title;
+        private int page;
+
+        public static ExerciseFragment newInstance(int page, String title) {
+            ExerciseFragment fragmentFirst = new ExerciseFragment();
+            Bundle args = new Bundle();
+            args.putInt("someInt", page);
+            args.putString("someTitle", title);
+            fragmentFirst.setArguments(args);
+            return fragmentFirst;
+        }
+
+        // Store instance variables based on arguments passed
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            page = getArguments().getInt("someInt", 0);
+            title = getArguments().getString("someTitle");
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.exercise_fragment, container, false);
+            TextView tvLabel = (TextView) view.findViewById(R.id.tvLabel);
+            tvLabel.setText(page + " -- " + title);
+
+            return view;
         }
     }
 }
